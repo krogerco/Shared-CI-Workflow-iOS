@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      FILENAME:
+        required: true
+        type: string
+      SCHEME:
+        required: true
+        type: string
+      CONFIGURATION:
+        required: true
+        type: string
+      DESTINATION:
+        required: true
+        type: string
+
+jobs:
+  build_project:
+    name: Build and Test
+    runs-on: macos-12
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Install tools
+        run: |
+          brew install xcbeautify
+          
+      - name: Build and Test
+        run: |
+            sudo xcode-select -s /Applications/Xcode_14.2.app/Contents/Developer
+            
+            ONLY_FILE_NAME=$(basename -- "${{ inputs.FILENAME }}")
+            EXTENSION="${ONLY_FILE_NAME##*.}"
+
+            case $EXTENSION in
+
+              "xcworkspace")
+                set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace "${{ inputs.FILENAME }}" -scheme "${{ inputs.SCHEME }}" -configuration "${{ inputs.CONFIGURATION }}" -destination  "${{ inputs.DESTINATION }}" GITHUB_CI=true clean test | xcbeautify
+                ;;
+
+              "xcodeproj")
+                set -o pipefail && env NSUnbufferedIO=YES xcodebuild -project "${{ inputs.FILENAME }}" -scheme "${{ inputs.SCHEME }}" -configuration "${{ inputs.CONFIGURATION }}" -destination  "${{ inputs.DESTINATION }}" GITHUB_CI=true clean test | xcbeautify
+                ;;
+            esac
+            
+
+      - name: Swiftlint
+        run: |
+          swiftlint lint --strict
