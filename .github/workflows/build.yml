@@ -7,13 +7,16 @@ on:
         required: true
         type: string
       SCHEME:
-        required: true
+        required: false
+        default: DemoApp
         type: string
       CONFIGURATION:
-        required: true
+        required: false
+        default: Debug
         type: string
       DESTINATION:
-        required: true
+        required: false
+        default: 'platform=iOS Simulator,name=iPhone 14,OS=16.2'
         type: string
 
 jobs:
