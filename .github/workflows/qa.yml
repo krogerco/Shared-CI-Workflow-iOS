@@ -2,10 +2,9 @@ name: Check for Sign Off
 
 on:
   workflow_call:
-    inputs:
+    secrets:
       github-token:
         required: true
-        type: string
 
 jobs:
   sign-off-check:
@@ -15,4 +14,4 @@ jobs:
       - name: sign off
         uses: krogertechnology/sign-off@v1.0.1
         with:
-          github-token: ${{ inputs.github-token }}
+          github-token: ${{ secrets.github-token }}
