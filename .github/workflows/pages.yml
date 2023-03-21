@@ -20,12 +20,6 @@ on:
         default: 'platform=iOS Simulator,name=iPhone 14,OS=16.2'
         type: string
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 # Allow one concurrent deployment
 concurrency:
   group: "pages"
@@ -39,6 +33,35 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: macos-12
     steps:
-      - name: Nothing
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
         run: |
-            echo "Hello World"
+            FILENAME_AND_EXTENSION=$(basename -- "${{ inputs.FILENAME }}")
+            ONLY_FILENAME="${FILENAME_AND_EXTENSION%.*}"
+
+            xcodebuild -workspace "${{ inputs.FILENAME }}" \
+                -derivedDataPath docsData \
+                -scheme "${{ inputs.SCHEME }}" \
+                -destination "${{ inputs.DESTINATION }}" \
+                -parallelizeTargets docbuild
+
+            cp -R `find docsData -type d -name '*.doccarchive'` .
+
+            $(xcrun --find docc) process-archive transform-for-static-hosting \
+                "${ONLY_FILENAME}".doccarchive \
+                --hosting-base-path "${ONLY_FILENAME}"-iOS \
+                --output-path docs
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # Upload docs folder
+          path: 'docs'
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
