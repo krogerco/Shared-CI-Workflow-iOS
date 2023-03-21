@@ -1,0 +1,44 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  workflow_call:
+    inputs:
+      FILENAME:
+        required: true
+        type: string
+      SCHEME:
+        required: false
+        default: DemoApp
+        type: string
+      CONFIGURATION:
+        required: false
+        default: Debug
+        type: string
+      DESTINATION:
+        required: false
+        default: 'platform=iOS Simulator,name=iPhone 14,OS=16.2'
+        type: string
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: macos-12
+    steps:
+      - name: Nothing
+        run: |
+            echo "Hello World"
