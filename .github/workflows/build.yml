@@ -36,7 +36,7 @@ jobs:
 
       - name: Build and Test
         run: |
-            sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+            sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
             
             ONLY_FILE_NAME=$(basename -- "${{ inputs.FILENAME }}")
             EXTENSION="${ONLY_FILE_NAME##*.}"
